@@ -81,6 +81,18 @@ export default function Report({ property, result }: ReportProps) {
     undervalued: `Below market — ${Math.abs(mv.pctFromMedian).toFixed(1)}% below median`,
   }[mv.verdict];
 
+  const [copied, setCopied] = useState(false);
+
+  function shareReport() {
+    const url = new URL(window.location.href);
+    url.searchParams.set("ref", property.parcelid);
+    url.searchParams.set("dwelling", String(property.dwellingExtent));
+    navigator.clipboard.writeText(url.toString()).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
   function downloadReport() {
     const blob = new Blob([result.reportText], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
@@ -103,25 +115,46 @@ export default function Report({ property, result }: ReportProps) {
             GV2025 General Valuation — Municipal Property Rates Act, Act 6 of 2004
           </p>
         </div>
-        <button
-          onClick={downloadReport}
-          className="flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-        >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
+        <div className="flex gap-2">
+          <button
+            onClick={shareReport}
+            className="flex items-center gap-2 rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            />
-          </svg>
-          Download Report
-        </button>
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+              />
+            </svg>
+            {copied ? "Link Copied!" : "Share"}
+          </button>
+          <button
+            onClick={downloadReport}
+            className="flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+              />
+            </svg>
+            Download Report
+          </button>
+        </div>
       </div>
 
       {/* Verdict banner — uses median-based verdict, not regression */}

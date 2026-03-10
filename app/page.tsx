@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, useRef, FormEvent } from "react";
 import { Property, SaleRow, AnalysisResult, Filters } from "@/lib/types";
 import Loader from "@/components/Loader";
 import Report from "@/components/Report";
@@ -34,6 +34,78 @@ export default function Home() {
   const [dwellingHi, setDwellingHi] = useState("");
   const [iqr, setIqr] = useState("1.5");
   const [freeholdOnly, setFreeholdOnly] = useState(true);
+  const didAutoRun = useRef(false);
+
+  useEffect(() => {
+    if (didAutoRun.current) return;
+    didAutoRun.current = true;
+
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    const dw = params.get("dwelling");
+    if (!ref || !dw) return;
+
+    setReference(ref);
+    setDwelling(dw);
+
+    (async () => {
+      setState({ phase: "lookup-loading" });
+      try {
+        const lookupRes = await fetch("/api/lookup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reference: ref.trim() }),
+        });
+        const lookupData = await lookupRes.json();
+        if (!lookupRes.ok) {
+          setState({ phase: "error", message: lookupData.error || "Lookup failed." });
+          return;
+        }
+
+        const dwellingExtent = parseFloat(dw);
+        if (!dwellingExtent || dwellingExtent <= 0) {
+          setState({
+            phase: "dwelling-prompt",
+            property: lookupData.property,
+            salesRows: lookupData.salesRows,
+            detectedDwelling: lookupData.detectedDwelling,
+          });
+          return;
+        }
+
+        const property = { ...lookupData.property, dwellingExtent };
+        setState({ phase: "analyze-loading", property, salesRows: lookupData.salesRows });
+
+        const analyzeRes = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            property,
+            salesRows: lookupData.salesRows,
+            dwellingExtent,
+          }),
+        });
+        const analyzeData = await analyzeRes.json();
+        if (!analyzeRes.ok) {
+          setState({ phase: "error", message: analyzeData.error || "Analysis failed." });
+          return;
+        }
+
+        setState({ phase: "results", property, result: analyzeData });
+      } catch {
+        setState({ phase: "error", message: "Network error. Please try again." });
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (state.phase === "results") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("ref", state.property.parcelid);
+      url.searchParams.set("dwelling", String(state.property.dwellingExtent));
+      window.history.replaceState({}, "", url.toString());
+    }
+  }, [state]);
 
   async function handleLookup(e: FormEvent) {
     e.preventDefault();
@@ -120,6 +192,7 @@ export default function Home() {
     setErfHi("");
     setDwellingLo("");
     setDwellingHi("");
+    window.history.replaceState({}, "", window.location.pathname);
   }
 
   return (
@@ -150,6 +223,23 @@ export default function Home() {
                 Enter your property reference to analyse whether the City of Cape Town&apos;s GV2025
                 valuation is fair based on comparable sales data.
               </p>
+            </div>
+
+            <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800/50 dark:bg-red-950/30">
+              <p className="text-xs font-medium uppercase tracking-wide text-red-700 dark:text-red-400">
+                Important Notices
+              </p>
+              <ul className="mt-2 space-y-2 text-sm text-red-700 dark:text-red-400">
+                <li>
+                  <strong>Use at your own risk.</strong> This tool provides a guideline only. It has
+                  not yet been used in an actual objection submission, and there is no guarantee
+                  that the City will accept its output or change your valuation.
+                </li>
+                <li>
+                  This is a <strong>vibe-coded</strong> project — results have not been
+                  independently verified and may not be 100% correct.
+                </li>
+              </ul>
             </div>
 
             <form onSubmit={handleLookup} className="space-y-4">
@@ -212,23 +302,6 @@ export default function Home() {
                   />
                 </svg>
               </a>
-            </div>
-
-            <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800/50 dark:bg-red-950/30">
-              <p className="text-xs font-medium uppercase tracking-wide text-red-700 dark:text-red-400">
-                Important Notices
-              </p>
-              <ul className="mt-2 space-y-2 text-sm text-red-700 dark:text-red-400">
-                <li>
-                  <strong>Use at your own risk.</strong> This tool provides a guideline only. It has
-                  not yet been used in an actual objection submission, and there is no guarantee
-                  that the City will accept its output or change your valuation.
-                </li>
-                <li>
-                  This is a <strong>vibe-coded</strong> project — results have not been
-                  independently verified and may not be 100% correct.
-                </li>
-              </ul>
             </div>
 
             <div className="mt-4 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
