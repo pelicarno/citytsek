@@ -8,8 +8,17 @@ import Report from "@/components/Report";
 type AppState =
   | { phase: "input" }
   | { phase: "lookup-loading" }
-  | { phase: "dwelling-prompt"; property: Property; salesRows: SaleRow[]; detectedDwelling: number | null }
-  | { phase: "analyze-loading"; property: Property & { dwellingExtent: number }; salesRows: SaleRow[] }
+  | {
+      phase: "dwelling-prompt";
+      property: Property;
+      salesRows: SaleRow[];
+      detectedDwelling: number | null;
+    }
+  | {
+      phase: "analyze-loading";
+      property: Property & { dwellingExtent: number };
+      salesRows: SaleRow[];
+    }
   | { phase: "results"; property: Property & { dwellingExtent: number }; result: AnalysisResult }
   | { phase: "error"; message: string };
 
@@ -120,10 +129,12 @@ export default function Home() {
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
           <button onClick={reset} className="flex items-center gap-2">
             <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">
-              Stad<span className="text-amber-600 dark:text-amber-400">Se</span>Kant
+              City<span className="text-amber-600 dark:text-amber-400">Tsek</span>
             </span>
           </button>
-          <span className="text-xs text-zinc-400 dark:text-zinc-500">GV2025 Valuation Analyser</span>
+          <span className="text-xs text-zinc-400 dark:text-zinc-500">
+            GV2025 Valuation Analyser
+          </span>
         </div>
       </header>
 
@@ -136,14 +147,17 @@ export default function Home() {
                 Check your property valuation
               </h1>
               <p className="mt-2 text-zinc-500 dark:text-zinc-400">
-                Enter your property reference to analyse whether the City of Cape
-                Town&apos;s GV2025 valuation is fair based on comparable sales data.
+                Enter your property reference to analyse whether the City of Cape Town&apos;s GV2025
+                valuation is fair based on comparable sales data.
               </p>
             </div>
 
             <form onSubmit={handleLookup} className="space-y-4">
               <div>
-                <label htmlFor="reference" className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                <label
+                  htmlFor="reference"
+                  className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                >
                   Property Reference
                 </label>
                 <input
@@ -174,7 +188,8 @@ export default function Home() {
                 Don&apos;t know your property reference?
               </p>
               <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300">
-                You can look it up on the City of Cape Town&apos;s GV2025 site using your ERF number or street address:
+                You can look it up on the City of Cape Town&apos;s GV2025 site using your ERF number
+                or street address:
               </p>
               <a
                 href="https://web1.capetown.gov.za/web1/gv2025/SearchProperty"
@@ -183,8 +198,18 @@ export default function Home() {
                 className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-amber-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600"
               >
                 Find your property reference
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                <svg
+                  className="h-3.5 w-3.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
                 </svg>
               </a>
             </div>
@@ -195,10 +220,13 @@ export default function Home() {
               </p>
               <ul className="mt-2 space-y-2 text-sm text-red-700 dark:text-red-400">
                 <li>
-                  <strong>Use at your own risk.</strong> This tool provides a guideline only. It has not yet been used in an actual objection submission, and there is no guarantee that the City will accept its output or change your valuation.
+                  <strong>Use at your own risk.</strong> This tool provides a guideline only. It has
+                  not yet been used in an actual objection submission, and there is no guarantee
+                  that the City will accept its output or change your valuation.
                 </li>
                 <li>
-                  This is a <strong>vibe-coded</strong> project — results have not been independently verified and may not be 100% correct.
+                  This is a <strong>vibe-coded</strong> project — results have not been
+                  independently verified and may not be 100% correct.
                 </li>
               </ul>
             </div>
@@ -241,7 +269,10 @@ export default function Home() {
 
             <form onSubmit={handleAnalyze} className="space-y-4">
               <div>
-                <label htmlFor="dwelling" className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                <label
+                  htmlFor="dwelling"
+                  className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                >
                   Dwelling Extent (m²)
                   {state.detectedDwelling && (
                     <span className="ml-2 text-xs font-normal text-green-600 dark:text-green-400">
@@ -263,7 +294,8 @@ export default function Home() {
                 />
                 {!state.detectedDwelling && (
                   <p className="mt-1.5 text-xs text-amber-600 dark:text-amber-400">
-                    Could not auto-detect dwelling size. Please enter it manually (check your rates bill or municipal account).
+                    Could not auto-detect dwelling size. Please enter it manually (check your rates
+                    bill or municipal account).
                   </p>
                 )}
               </div>
@@ -290,7 +322,9 @@ export default function Home() {
                 <div className="space-y-3 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="mb-1 block text-xs text-zinc-500 dark:text-zinc-400">Min Sale Price (R)</label>
+                      <label className="mb-1 block text-xs text-zinc-500 dark:text-zinc-400">
+                        Min Sale Price (R)
+                      </label>
                       <input
                         type="number"
                         value={minPrice}
@@ -299,7 +333,9 @@ export default function Home() {
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs text-zinc-500 dark:text-zinc-400">IQR Multiplier</label>
+                      <label className="mb-1 block text-xs text-zinc-500 dark:text-zinc-400">
+                        IQR Multiplier
+                      </label>
                       <input
                         type="number"
                         value={iqr}
@@ -311,7 +347,9 @@ export default function Home() {
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="mb-1 block text-xs text-zinc-500 dark:text-zinc-400">ERF Range Min (m²)</label>
+                      <label className="mb-1 block text-xs text-zinc-500 dark:text-zinc-400">
+                        ERF Range Min (m²)
+                      </label>
                       <input
                         type="number"
                         value={erfLo}
@@ -321,7 +359,9 @@ export default function Home() {
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs text-zinc-500 dark:text-zinc-400">ERF Range Max (m²)</label>
+                      <label className="mb-1 block text-xs text-zinc-500 dark:text-zinc-400">
+                        ERF Range Max (m²)
+                      </label>
                       <input
                         type="number"
                         value={erfHi}
@@ -333,7 +373,9 @@ export default function Home() {
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="mb-1 block text-xs text-zinc-500 dark:text-zinc-400">Dwelling Range Min (m²)</label>
+                      <label className="mb-1 block text-xs text-zinc-500 dark:text-zinc-400">
+                        Dwelling Range Min (m²)
+                      </label>
                       <input
                         type="number"
                         value={dwellingLo}
@@ -343,7 +385,9 @@ export default function Home() {
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs text-zinc-500 dark:text-zinc-400">Dwelling Range Max (m²)</label>
+                      <label className="mb-1 block text-xs text-zinc-500 dark:text-zinc-400">
+                        Dwelling Range Max (m²)
+                      </label>
                       <input
                         type="number"
                         value={dwellingHi}
@@ -394,8 +438,18 @@ export default function Home() {
               onClick={reset}
               className="mb-6 flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
             >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
               </svg>
               Analyse another property
             </button>
@@ -441,7 +495,7 @@ export default function Home() {
           </p>
           <p className="mt-3">
             <a
-              href="https://github.com/pelicarno/stadsekant"
+              href="https://github.com/pelicarno/citytsek"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 underline hover:text-zinc-600 dark:hover:text-zinc-300"
@@ -454,7 +508,7 @@ export default function Home() {
             {" · "}
             Found a bug or have an idea?{" "}
             <a
-              href="https://github.com/pelicarno/stadsekant/issues"
+              href="https://github.com/pelicarno/citytsek/issues"
               target="_blank"
               rel="noopener noreferrer"
               className="underline hover:text-zinc-600 dark:hover:text-zinc-300"
@@ -463,7 +517,7 @@ export default function Home() {
             </a>
             {" or "}
             <a
-              href="https://github.com/pelicarno/stadsekant/blob/main/CONTRIBUTING.md"
+              href="https://github.com/pelicarno/citytsek/blob/main/CONTRIBUTING.md"
               target="_blank"
               rel="noopener noreferrer"
               className="underline hover:text-zinc-600 dark:hover:text-zinc-300"

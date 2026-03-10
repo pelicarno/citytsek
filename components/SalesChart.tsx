@@ -34,8 +34,13 @@ function polyEvalClient(model: PolyModel, x: number): number {
 }
 
 export default function SalesChart({
-  sales, model, predictions, gvValuePerM2,
-  medianPricePerM2, q1PricePerM2, q3PricePerM2,
+  sales,
+  model,
+  predictions,
+  gvValuePerM2,
+  medianPricePerM2,
+  q1PricePerM2,
+  q3PricePerM2,
 }: SalesChartProps) {
   const { chartData, chartOptions } = useMemo(() => {
     const salesPoints = sales.map((s) => ({
@@ -183,7 +188,10 @@ export default function SalesChart({
         },
         tooltip: {
           callbacks: {
-            label: (ctx: { dataset: { label?: string }; parsed: { x: number | null; y: number | null } }) => {
+            label: (ctx: {
+              dataset: { label?: string };
+              parsed: { x: number | null; y: number | null };
+            }) => {
               const xVal = ctx.parsed.x ?? 0;
               const yVal = ctx.parsed.y ?? 0;
               const intYear = Math.floor(xVal);

@@ -45,9 +45,7 @@ function parseResultRows(html: string): Property[] {
 
     const valueText = cleanCell(cells[5]);
     const valueMatch = valueText.match(/R\s*([\d,. ]+)/);
-    const marketValue = valueMatch
-      ? parseFloat(valueMatch[1].replace(/[,\s]/g, ""))
-      : 0;
+    const marketValue = valueMatch ? parseFloat(valueMatch[1].replace(/[,\s]/g, "")) : 0;
 
     results.push({ parcelid, description, category, address, erfExtent, marketValue });
   }
@@ -92,9 +90,7 @@ async function fetchDwellingFromDetail(
   const location = postRes.headers.get("location");
   if (!location || postRes.status !== 302) return null;
 
-  const detailUrl = location.startsWith("http")
-    ? location
-    : new URL(location, resultsUrl).href;
+  const detailUrl = location.startsWith("http") ? location : new URL(location, resultsUrl).href;
 
   const detailRes = await fetch(detailUrl, {
     headers: { Cookie: cookieHeader },
@@ -116,17 +112,17 @@ export async function lookupProperty(
   if (/^\d+$/.test(trimmed)) {
     throw new Error(
       `ERF numbers are not accepted because they can match multiple properties across suburbs. ` +
-      `Please use your property reference (e.g. CCT015775300000) instead.\n\n` +
-      `To find your property reference, visit:\nhttps://web1.capetown.gov.za/web1/gv2025/SearchProperty\n` +
-      `and search by ERF number or address.`
+        `Please use your property reference (e.g. CCT015775300000) instead.\n\n` +
+        `To find your property reference, visit:\nhttps://web1.capetown.gov.za/web1/gv2025/SearchProperty\n` +
+        `and search by ERF number or address.`,
     );
   }
 
   if (!/^[a-zA-Z]{2,}\d+$/i.test(trimmed)) {
     throw new Error(
       `"${reference.trim()}" does not look like a valid property reference. ` +
-      `Property references start with letters followed by digits (e.g. CCT015775300000).\n\n` +
-      `To find your property reference, visit:\nhttps://web1.capetown.gov.za/web1/gv2025/SearchProperty`
+        `Property references start with letters followed by digits (e.g. CCT015775300000).\n\n` +
+        `To find your property reference, visit:\nhttps://web1.capetown.gov.za/web1/gv2025/SearchProperty`,
     );
   }
 
@@ -137,9 +133,7 @@ export async function lookupProperty(
   const results = parseResultRows(html);
 
   if (results.length === 0) {
-    throw new Error(
-      `No property found for reference "${trimmed}". Check the input and try again.`
-    );
+    throw new Error(`No property found for reference "${trimmed}". Check the input and try again.`);
   }
 
   let dwellingExtent: number | null = null;
@@ -189,7 +183,6 @@ export async function scrapeSales(parcelid: string): Promise<SaleRow[]> {
   const salesUrl = `${GV_BASE}/Sales?parcelid=${parcelid.toLowerCase()}`;
   const allRows: string[][] = [];
   let url: string | null = salesUrl;
-  let page = 1;
 
   while (url) {
     const html = await fetchPage(url);
@@ -199,7 +192,6 @@ export async function scrapeSales(parcelid: string): Promise<SaleRow[]> {
     const next = findNextPageUrl(html, url);
     if (next && next !== url) {
       url = next;
-      page++;
     } else {
       url = null;
     }
@@ -218,7 +210,7 @@ export async function scrapeSales(parcelid: string): Promise<SaleRow[]> {
 
 export function detectDwellingFromSales(salesRows: SaleRow[], parcelid: string): number | null {
   const match = salesRows.find(
-    (s) => s.ref.toUpperCase() === parcelid.toUpperCase() && parseFloat(s.dwellingExtent) > 0
+    (s) => s.ref.toUpperCase() === parcelid.toUpperCase() && parseFloat(s.dwellingExtent) > 0,
   );
   return match ? parseFloat(match.dwellingExtent) : null;
 }

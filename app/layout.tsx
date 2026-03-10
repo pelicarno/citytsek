@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "StadSeKant — GV2025 Property Valuation Analyser",
+  title: "CityTsek — GV2025 Property Valuation Analyser",
   description:
     "Free tool to analyse your City of Cape Town GV2025 property valuation against comparable sales data. Generate an objection motivation report.",
   keywords: [
@@ -34,9 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         {children}
         <Analytics />
       </body>

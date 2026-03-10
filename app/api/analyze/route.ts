@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     if (!body.property || !body.salesRows || !body.dwellingExtent) {
       return NextResponse.json(
         { error: "Missing required fields: property, salesRows, dwellingExtent." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 

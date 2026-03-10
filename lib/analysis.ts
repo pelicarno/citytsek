@@ -81,13 +81,6 @@ function dateToFractionalYear(d: Date): number {
   return year + (d.getTime() - start.getTime()) / (end.getTime() - start.getTime());
 }
 
-function formatDate(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${y}/${m}/${dd}`;
-}
-
 // ── Formatting helpers ──────────────────────────────────────────────────────
 
 function fmtR(n: number): string {
@@ -106,17 +99,13 @@ function padL(s: string, w: number): string {
 }
 
 function table(headers: string[], rows: string[][], aligns: string[]): string {
-  const widths = headers.map((h, i) =>
-    Math.max(h.length, ...rows.map((r) => String(r[i]).length))
-  );
+  const widths = headers.map((h, i) => Math.max(h.length, ...rows.map((r) => String(r[i]).length)));
   const pad = (val: string, i: number) =>
     aligns[i] === "R" ? padL(val, widths[i]) : padR(val, widths[i]);
 
   const sep = widths.map((w) => "─".repeat(w)).join("─┼─");
   const hdr = headers.map((h, i) => pad(h, i)).join(" │ ");
-  const body = rows
-    .map((r) => r.map((c, i) => pad(c, i)).join(" │ "))
-    .join("\n");
+  const body = rows.map((r) => r.map((c, i) => pad(c, i)).join(" │ ")).join("\n");
 
   return `${hdr}\n${sep}\n${body}`;
 }
@@ -331,7 +320,7 @@ function parseSalesData(rows: SaleRow[]): ParsedSale[] {
 export function runAnalysis(
   salesRows: SaleRow[],
   property: Property & { dwellingExtent: number },
-  userFilters?: Partial<Filters>
+  userFilters?: Partial<Filters>,
 ): AnalysisResult {
   const allSales = parseSalesData(salesRows);
 
@@ -353,39 +342,38 @@ export function runAnalysis(
 
   let pool = allSales.filter((s) => s.dwellingExtent > 0 && s.salePrice > 0);
   filterLog.push(
-    `After removing zero dwelling/price: ${pool.length} (removed ${allSales.length - pool.length})`
+    `After removing zero dwelling/price: ${pool.length} (removed ${allSales.length - pool.length})`,
   );
 
   let prev = pool.length;
   pool = pool.filter((s) => s.salePrice >= filters.minPrice);
   filterLog.push(
-    `After min price ≥ R${filters.minPrice.toLocaleString()}: ${pool.length} (removed ${prev - pool.length})`
+    `After min price ≥ R${filters.minPrice.toLocaleString()}: ${pool.length} (removed ${prev - pool.length})`,
   );
 
   if (filters.freeholdOnly) {
     prev = pool.length;
     pool = pool.filter((s) => isFreehold(s.description));
     filterLog.push(
-      `After freehold only (excl. SS units): ${pool.length} (removed ${prev - pool.length})`
+      `After freehold only (excl. SS units): ${pool.length} (removed ${prev - pool.length})`,
     );
   }
 
   prev = pool.length;
   pool = pool.filter(
-    (s) => s.erfExtent >= filters.erfRange[0] && s.erfExtent <= filters.erfRange[1]
+    (s) => s.erfExtent >= filters.erfRange[0] && s.erfExtent <= filters.erfRange[1],
   );
   filterLog.push(
-    `After erf ${filters.erfRange[0]}–${filters.erfRange[1]} m²: ${pool.length} (removed ${prev - pool.length})`
+    `After erf ${filters.erfRange[0]}–${filters.erfRange[1]} m²: ${pool.length} (removed ${prev - pool.length})`,
   );
 
   prev = pool.length;
   pool = pool.filter(
     (s) =>
-      s.dwellingExtent >= filters.dwellingRange[0] &&
-      s.dwellingExtent <= filters.dwellingRange[1]
+      s.dwellingExtent >= filters.dwellingRange[0] && s.dwellingExtent <= filters.dwellingRange[1],
   );
   filterLog.push(
-    `After dwelling ${filters.dwellingRange[0]}–${filters.dwellingRange[1]} m²: ${pool.length} (removed ${prev - pool.length})`
+    `After dwelling ${filters.dwellingRange[0]}–${filters.dwellingRange[1]} m²: ${pool.length} (removed ${prev - pool.length})`,
   );
 
   let enriched: EnrichedSale[] = pool.map((s) => {
@@ -406,7 +394,7 @@ export function runAnalysis(
 
   if (enriched.length < 3) {
     throw new Error(
-      `Only ${enriched.length} comparable sales remain after filtering. Try widening filters (erf range, dwelling range, min price).`
+      `Only ${enriched.length} comparable sales remain after filtering. Try widening filters (erf range, dwelling range, min price).`,
     );
   }
 
@@ -416,16 +404,15 @@ export function runAnalysis(
   const fences = computeIQRFences(prePrices, filters.iqr);
   prev = enriched.length;
   enriched = enriched.filter(
-    (s) =>
-      s.pricePerM2Dwelling >= fences.lower && s.pricePerM2Dwelling <= fences.upper
+    (s) => s.pricePerM2Dwelling >= fences.lower && s.pricePerM2Dwelling <= fences.upper,
   );
   filterLog.push(
-    `After IQR outlier removal (R/m² ${fmtR(fences.lower)}–${fmtR(fences.upper)}): ${enriched.length} (removed ${prev - enriched.length})`
+    `After IQR outlier removal (R/m² ${fmtR(fences.lower)}–${fmtR(fences.upper)}): ${enriched.length} (removed ${prev - enriched.length})`,
   );
 
   if (enriched.length < 3) {
     throw new Error(
-      `Only ${enriched.length} sales remain after IQR removal. Try a higher IQR multiplier or wider filter ranges.`
+      `Only ${enriched.length} sales remain after IQR removal. Try a higher IQR multiplier or wider filter ranges.`,
     );
   }
 
@@ -470,8 +457,15 @@ export function runAnalysis(
 
   // ── Report text ─────────────────────────────────────────────────────────
   const reportText = generateReportText(
-    property, enriched, filters, filterLog, fences,
-    medianValuation, model, r2, predictions,
+    property,
+    enriched,
+    filters,
+    filterLog,
+    fences,
+    medianValuation,
+    model,
+    r2,
+    predictions,
   );
 
   return {
@@ -506,7 +500,7 @@ function generateReportText(
   mv: MedianValuation,
   model: PolyModel,
   r2: number,
-  predictions: Prediction[]
+  predictions: Prediction[],
 ): string {
   const suburb = extractSuburb(property.address);
   const report: string[] = [];
@@ -549,7 +543,7 @@ function generateReportText(
   report.push("      multiplied by the subject property's dwelling extent to produce");
   report.push("      a market estimate. A time-weighted median (half-life 2 years)");
   report.push("      gives more weight to recent sales. The IQR range (Q1–Q3)");
-  report.push("      defines a \"fair value band\" — the middle 50% of comparables.");
+  report.push('      defines a "fair value band" — the middle 50% of comparables.');
   report.push("");
   report.push("   B) POLYNOMIAL REGRESSION (supplementary trend analysis)");
   report.push("      A degree-2 polynomial is fitted to R/m² dwelling vs. date");
@@ -561,22 +555,32 @@ function generateReportText(
   if (filters.freeholdOnly) {
     report.push("     • Freehold properties only (excluding sectional title schemes)");
   }
-  report.push(`     • Erf extent: ${filters.erfRange[0]}–${filters.erfRange[1]} m² (subject: ${property.erfExtent} m²)`);
-  report.push(`     • Dwelling extent: ${filters.dwellingRange[0]}–${filters.dwellingRange[1]} m² (subject: ${property.dwellingExtent} m²)`);
-  report.push(`     • Sale price ≥ R${filters.minPrice.toLocaleString()} (excluding non-market transfers)`);
+  report.push(
+    `     • Erf extent: ${filters.erfRange[0]}–${filters.erfRange[1]} m² (subject: ${property.erfExtent} m²)`,
+  );
+  report.push(
+    `     • Dwelling extent: ${filters.dwellingRange[0]}–${filters.dwellingRange[1]} m² (subject: ${property.dwellingExtent} m²)`,
+  );
+  report.push(
+    `     • Sale price ≥ R${filters.minPrice.toLocaleString()} (excluding non-market transfers)`,
+  );
   report.push(`     • IQR outlier removal on R/m² dwelling (${filters.iqr}× IQR fences)`);
   report.push("");
   report.push("   Filtering pipeline:");
   filterLog.forEach((l) => report.push(`     ${l}`));
   report.push("");
   report.push(`   After filtering, ${enriched.length} comparable sales from the period`);
-  report.push(`   ${enriched[0].saleDate} to ${enriched[enriched.length - 1].saleDate} were used for the analysis.`);
+  report.push(
+    `   ${enriched[0].saleDate} to ${enriched[enriched.length - 1].saleDate} were used for the analysis.`,
+  );
   report.push("");
 
   report.push("3. COMPARABLE SALES SUMMARY STATISTICS");
   report.push(hr2);
   report.push(`   Number of comparable sales:  ${enriched.length}`);
-  report.push(`   Date range:                  ${enriched[0].saleDate} — ${enriched[enriched.length - 1].saleDate}`);
+  report.push(
+    `   Date range:                  ${enriched[0].saleDate} — ${enriched[enriched.length - 1].saleDate}`,
+  );
   report.push(`   Median  R/m² dwelling:       ${fmtR(mv.medianPricePerM2)}`);
   report.push(`   Time-weighted median R/m²:   ${fmtR(mv.timeWeightedMedianPricePerM2)}`);
   report.push(`   Q1 (25th percentile) R/m²:   ${fmtR(mv.q1PricePerM2)}`);
@@ -590,7 +594,15 @@ function generateReportText(
   report.push(`   IQR fence (upper):           ${fmtR(fences.upper)}`);
   report.push("");
 
-  const salesTableHeaders = ["#", "Sale Date", "Address", "Sale Price", "Erf m²", "Dwelling m²", "R/m² Dwelling"];
+  const salesTableHeaders = [
+    "#",
+    "Sale Date",
+    "Address",
+    "Sale Price",
+    "Erf m²",
+    "Dwelling m²",
+    "R/m² Dwelling",
+  ];
   const salesTableRows = enriched.map((s, i) => [
     String(i + 1),
     s.saleDate,
@@ -620,17 +632,29 @@ function generateReportText(
   report.push("5. MEDIAN-BASED VALUATION (PRIMARY)");
   report.push(hr2);
   report.push(`   Subject dwelling extent:             ${property.dwellingExtent} m²`);
-  report.push(`   Median R/m² × dwelling:              ${fmtR(mv.medianPricePerM2)} × ${property.dwellingExtent} = ${fmtR(mv.medianValue)}`);
-  report.push(`   Time-weighted median × dwelling:     ${fmtR(mv.timeWeightedMedianPricePerM2)} × ${property.dwellingExtent} = ${fmtR(mv.timeWeightedValue)}`);
+  report.push(
+    `   Median R/m² × dwelling:              ${fmtR(mv.medianPricePerM2)} × ${property.dwellingExtent} = ${fmtR(mv.medianValue)}`,
+  );
+  report.push(
+    `   Time-weighted median × dwelling:     ${fmtR(mv.timeWeightedMedianPricePerM2)} × ${property.dwellingExtent} = ${fmtR(mv.timeWeightedValue)}`,
+  );
   report.push(`   Fair value band (Q1–Q3 × dwelling):  ${fmtR(mv.q1Value)} — ${fmtR(mv.q3Value)}`);
   report.push("");
   report.push(`   GV2025 assessed value:               ${fmtR(property.marketValue)}`);
-  report.push(`   GV2025 R/m² dwelling:                ${fmtR(property.marketValue / property.dwellingExtent)}`);
+  report.push(
+    `   GV2025 R/m² dwelling:                ${fmtR(property.marketValue / property.dwellingExtent)}`,
+  );
   report.push("");
   if (mv.verdict === "overvalued") {
-    report.push(`   VERDICT: OVERVALUED — GV2025 R/m² of ${fmtR(property.marketValue / property.dwellingExtent)}`);
-    report.push(`   exceeds the 75th percentile (Q3) of comparable sales (${fmtR(mv.q3PricePerM2)}/m²).`);
-    report.push(`   The valuation is ${Math.abs(mv.pctFromMedian).toFixed(1)}% above the median comparable.`);
+    report.push(
+      `   VERDICT: OVERVALUED — GV2025 R/m² of ${fmtR(property.marketValue / property.dwellingExtent)}`,
+    );
+    report.push(
+      `   exceeds the 75th percentile (Q3) of comparable sales (${fmtR(mv.q3PricePerM2)}/m²).`,
+    );
+    report.push(
+      `   The valuation is ${Math.abs(mv.pctFromMedian).toFixed(1)}% above the median comparable.`,
+    );
   } else if (mv.verdict === "undervalued") {
     report.push(`   VERDICT: Undervalued — GV2025 R/m² is below Q1 of comparable sales.`);
   } else {
@@ -670,12 +694,18 @@ function generateReportText(
   report.push("7. CONCLUSION");
   report.push(hr2);
   if (mv.verdict === "overvalued") {
-    report.push(`   Based on the analysis of ${enriched.length} comparable sales in the ${suburb} neighbourhood,`);
-    report.push(`   the GV2025 valuation of ${fmtR(property.marketValue)} for the subject property`);
+    report.push(
+      `   Based on the analysis of ${enriched.length} comparable sales in the ${suburb} neighbourhood,`,
+    );
+    report.push(
+      `   the GV2025 valuation of ${fmtR(property.marketValue)} for the subject property`,
+    );
     report.push(`   at ${property.address} is ${Math.abs(mv.pctFromMedian).toFixed(1)}% above`);
     report.push("   the median comparable sale price per m² of dwelling.");
     report.push("");
-    report.push(`   The GV2025 R/m² of ${fmtR(property.marketValue / property.dwellingExtent)} exceeds the 75th percentile`);
+    report.push(
+      `   The GV2025 R/m² of ${fmtR(property.marketValue / property.dwellingExtent)} exceeds the 75th percentile`,
+    );
     report.push(`   of ${fmtR(mv.q3PricePerM2)}/m², placing it outside the fair value band of`);
     report.push(`   ${fmtR(mv.q1Value)} to ${fmtR(mv.q3Value)}.`);
     report.push("");
@@ -683,7 +713,9 @@ function generateReportText(
     report.push(`   (time-weighted: ${fmtR(mv.timeWeightedValue)}).`);
     report.push("");
     report.push("   It is respectfully submitted that the GV2025 valuation be reviewed and");
-    report.push(`   adjusted to reflect the market-indicated value of approximately ${fmtR(mv.timeWeightedValue)}.`);
+    report.push(
+      `   adjusted to reflect the market-indicated value of approximately ${fmtR(mv.timeWeightedValue)}.`,
+    );
   } else if (mv.verdict === "undervalued") {
     report.push("   Based on the analysis, the GV2025 valuation appears to be below");
     report.push("   the market-indicated value. No upward objection is recommended.");
@@ -696,7 +728,9 @@ function generateReportText(
   report.push(hr);
   report.push(`Report generated: ${new Date().toISOString().slice(0, 10)}`);
   report.push(`Data source: City of Cape Town GV2025 Provision Roll — comparable sales`);
-  report.push(`Sales URL: https://web1.capetown.gov.za/web1/gv2025/Sales?parcelid=${property.parcelid.toLowerCase()}`);
+  report.push(
+    `Sales URL: https://web1.capetown.gov.za/web1/gv2025/Sales?parcelid=${property.parcelid.toLowerCase()}`,
+  );
   report.push(hr);
 
   return report.join("\n");

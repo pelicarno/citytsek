@@ -1,4 +1,4 @@
-# StadSeKant — GV2025 Valuation Analyser (Web App)
+# CityTsek — GV2025 Valuation Analyser (Web App)
 
 Next.js web application that analyses City of Cape Town GV2025 property valuations
 against comparable sales data and produces an objection motivation report.
@@ -32,12 +32,12 @@ lib/
 
 ### Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | Next.js (App Router) |
-| Frontend | React, TypeScript |
-| Styling | Tailwind CSS |
-| Charts | Chart.js, react-chartjs-2 |
+| Layer       | Technology                                              |
+| ----------- | ------------------------------------------------------- |
+| Framework   | Next.js (App Router)                                    |
+| Frontend    | React, TypeScript                                       |
+| Styling     | Tailwind CSS                                            |
+| Charts      | Chart.js, react-chartjs-2                               |
 | Data source | City of Cape Town GV2025 Provision Roll (HTML scraping) |
 
 ---
@@ -66,6 +66,7 @@ Two methods are used. They serve different purposes:
 valuation practice and recognised by valuation tribunals.
 
 **How:**
+
 1. Filter neighbourhood sales to genuine comparables (see Filtering Pipeline below)
 2. Compute R/m² dwelling for each sale
 3. Calculate the **median R/m²** and **IQR (Q1, Q3)** of the distribution
@@ -75,11 +76,13 @@ valuation practice and recognised by valuation tribunals.
 6. Fair value band = Q1 × dwelling extent to Q3 × dwelling extent
 
 **Verdict logic:**
+
 - **Overvalued:** GV2025 R/m² > Q3 (above 75th percentile of comparables)
 - **Fair:** Q1 ≤ GV2025 R/m² ≤ Q3 (within the middle 50%)
 - **Undervalued:** GV2025 R/m² < Q1 (below 25th percentile)
 
 **Why this is primary:**
+
 - Transparent and model-free — no assumptions about functional form
 - Standard practice — what municipal valuation panels expect
 - Robust — the median is resistant to outliers
@@ -96,6 +99,7 @@ valuation practice and recognised by valuation tribunals.
 year (x).
 
 **How:**
+
 1. Normalise x-values to zero-mean, unit-variance for numerical stability
 2. Build normal equations (XᵀX β = Xᵀy)
 3. Solve via Gaussian elimination with partial pivoting
@@ -103,6 +107,7 @@ year (x).
 5. Report R² as goodness-of-fit metric
 
 **Why this is supplementary (not primary):**
+
 - R² is typically **0.05–0.15** for residential property. This means the model
   explains only 5–15% of price variance.
 - Property prices depend on many unobserved factors (condition, renovations,
@@ -115,6 +120,7 @@ year (x).
   swing wildly outside the fitted window).
 
 **What it IS useful for:**
+
 - Visualising the general market trend on the scatter chart
 - Confirming whether prices are trending up or down over time
 - Providing supplementary projected values at future dates
@@ -136,6 +142,7 @@ weight(sale) = exp(-ln(2) × yearsBeforeValuation / halfLife)
 ```
 
 With `halfLife = 2 years`:
+
 - Sale from 2023-07-01 (2 years before valuation): weight 0.50
 - Sale from 2021-07-01 (4 years before valuation): weight 0.25
 - Sale from 2019-07-01 (6 years before valuation): weight 0.125
@@ -167,14 +174,14 @@ analysis throws an error suggesting the user widen filters.
 
 The scatter chart (`SalesChart.tsx`) shows:
 
-| Element | Colour | Purpose |
-|---------|--------|---------|
-| Blue dots | `rgba(59,130,246)` | Individual comparable sales |
-| Green solid line | `rgba(16,185,129)` | Median R/m² (primary benchmark) |
-| Green shaded band | `rgba(16,185,129,0.08)` | Q1–Q3 fair value range |
-| Red dashed line | `rgba(239,68,68,0.5)` | Polynomial regression trend (supplementary) |
-| Red triangles | `rgba(239,68,68)` | Regression projected values |
-| Orange dashed line | `rgba(249,115,22)` | GV2025 valuation R/m² |
+| Element            | Colour                  | Purpose                                     |
+| ------------------ | ----------------------- | ------------------------------------------- |
+| Blue dots          | `rgba(59,130,246)`      | Individual comparable sales                 |
+| Green solid line   | `rgba(16,185,129)`      | Median R/m² (primary benchmark)             |
+| Green shaded band  | `rgba(16,185,129,0.08)` | Q1–Q3 fair value range                      |
+| Red dashed line    | `rgba(239,68,68,0.5)`   | Polynomial regression trend (supplementary) |
+| Red triangles      | `rgba(239,68,68)`       | Regression projected values                 |
+| Orange dashed line | `rgba(249,115,22)`      | GV2025 valuation R/m²                       |
 
 The Q1–Q3 band uses Chart.js `fill: "+1"` to shade between the Q3 line and
 the next dataset (Q1 line). The Q1 dataset label starts with `_` so it's
@@ -199,6 +206,7 @@ accessed by direct URL — it requires an active session established through
 the Results page.
 
 **How the scraper navigates this:**
+
 1. GET the Results page → extract `ASP.NET_SessionId` cookie + hidden form
    fields (`__VIEWSTATE`, `__EVENTVALIDATION`, `__VIEWSTATEGENERATOR`)
 2. POST back to the same URL with `__EVENTTARGET` set to the property
@@ -208,6 +216,7 @@ the Results page.
    the "RESIDENCE DETAILS" table
 
 **Fallback chain:**
+
 1. Primary: DetStructRes page (City's property attribute data)
 2. Secondary: Find the subject property in neighbourhood sales data
 3. Manual: User enters dwelling extent themselves

@@ -43,7 +43,16 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 export default function Report({ property, result }: ReportProps) {
   const [showAllSales, setShowAllSales] = useState(false);
-  const { enrichedSales, stats, fences, predictions, r2, filterLog, filters, medianValuation: mv } = result;
+  const {
+    enrichedSales,
+    stats,
+    fences,
+    predictions,
+    r2,
+    filterLog,
+    filters,
+    medianValuation: mv,
+  } = result;
   const gvValuePerM2 = property.marketValue / property.dwellingExtent;
 
   const displaySales = showAllSales ? enrichedSales : enrichedSales.slice(0, 25);
@@ -98,8 +107,18 @@ export default function Report({ property, result }: ReportProps) {
           onClick={downloadReport}
           className="flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            />
           </svg>
           Download Report
         </button>
@@ -110,20 +129,25 @@ export default function Report({ property, result }: ReportProps) {
         <p className="text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
           Assessment (based on {stats.count} comparable sales)
         </p>
-        <p className={`mt-1 text-xl font-bold ${verdictColor.text}`}>
-          {verdictLabel}
-        </p>
+        <p className={`mt-1 text-xl font-bold ${verdictColor.text}`}>{verdictLabel}</p>
         <div className="mt-3 grid gap-1 text-sm text-zinc-600 dark:text-zinc-400">
           <p>
-            GV2025 valuation: <strong className="text-zinc-800 dark:text-zinc-200">{fmtR(property.marketValue)}</strong>
-            {" "}({fmtR(gvValuePerM2)}/m²)
+            GV2025 valuation:{" "}
+            <strong className="text-zinc-800 dark:text-zinc-200">
+              {fmtR(property.marketValue)}
+            </strong>{" "}
+            ({fmtR(gvValuePerM2)}/m²)
           </p>
           <p>
-            Median market estimate: <strong className="text-zinc-800 dark:text-zinc-200">{fmtR(mv.medianValue)}</strong>
-            {" "}({fmtR(mv.medianPricePerM2)}/m²)
+            Median market estimate:{" "}
+            <strong className="text-zinc-800 dark:text-zinc-200">{fmtR(mv.medianValue)}</strong> (
+            {fmtR(mv.medianPricePerM2)}/m²)
           </p>
           <p>
-            Fair value band (Q1–Q3): <strong className="text-zinc-800 dark:text-zinc-200">{fmtR(mv.q1Value)} — {fmtR(mv.q3Value)}</strong>
+            Fair value band (Q1–Q3):{" "}
+            <strong className="text-zinc-800 dark:text-zinc-200">
+              {fmtR(mv.q1Value)} — {fmtR(mv.q3Value)}
+            </strong>
           </p>
         </div>
       </div>
@@ -184,16 +208,21 @@ export default function Report({ property, result }: ReportProps) {
           <div className="my-3 border-t border-zinc-200 dark:border-zinc-700" />
           <Stat label="Median Market Estimate" value={fmtR(mv.medianValue)} />
           <Stat label="Time-Weighted Estimate" value={fmtR(mv.timeWeightedValue)} />
-          <Stat label="Fair Value Band (Q1–Q3)" value={`${fmtR(mv.q1Value)} — ${fmtR(mv.q3Value)}`} />
+          <Stat
+            label="Fair Value Band (Q1–Q3)"
+            value={`${fmtR(mv.q1Value)} — ${fmtR(mv.q3Value)}`}
+          />
           <div className="my-3 border-t border-zinc-200 dark:border-zinc-700" />
           <Stat label="GV2025 R/m² Dwelling" value={fmtR(gvValuePerM2)} />
           <Stat
             label="Verdict"
-            value={mv.verdict === "overvalued"
-              ? `Overvalued (${Math.abs(mv.pctFromMedian).toFixed(1)}% above median)`
-              : mv.verdict === "undervalued"
-                ? `Undervalued (${Math.abs(mv.pctFromMedian).toFixed(1)}% below median)`
-                : "Fair (within Q1–Q3 range)"}
+            value={
+              mv.verdict === "overvalued"
+                ? `Overvalued (${Math.abs(mv.pctFromMedian).toFixed(1)}% above median)`
+                : mv.verdict === "undervalued"
+                  ? `Undervalued (${Math.abs(mv.pctFromMedian).toFixed(1)}% below median)`
+                  : "Fair (within Q1–Q3 range)"
+            }
           />
         </div>
       </Section>
@@ -226,11 +255,13 @@ export default function Report({ property, result }: ReportProps) {
           />
           <div className="mt-3 text-center text-xs text-zinc-500 dark:text-zinc-400">
             <p>
-              Degree-2 polynomial regression — R² = {r2.toFixed(4)} ({(r2 * 100).toFixed(1)}% variance explained)
+              Degree-2 polynomial regression — R² = {r2.toFixed(4)} ({(r2 * 100).toFixed(1)}%
+              variance explained)
             </p>
             {r2 < 0.2 && (
               <p className="mt-1 text-amber-600 dark:text-amber-400">
-                R² &lt; 0.20 — regression trend is weak. The horizontal median / Q1–Q3 band is more reliable.
+                R² &lt; 0.20 — regression trend is weak. The horizontal median / Q1–Q3 band is more
+                reliable.
               </p>
             )}
           </div>
@@ -254,14 +285,19 @@ export default function Report({ property, result }: ReportProps) {
             </thead>
             <tbody className="divide-y divide-zinc-100 bg-white dark:divide-zinc-800 dark:bg-zinc-950">
               {displaySales.map((s, i) => (
-                <tr key={`${s.ref}-${s.saleDate}-${i}`} className="hover:bg-zinc-50 dark:hover:bg-zinc-900">
+                <tr
+                  key={`${s.ref}-${s.saleDate}-${i}`}
+                  className="hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                >
                   <td className="px-3 py-1.5 text-zinc-400">{i + 1}</td>
                   <td className="px-3 py-1.5">{s.saleDate}</td>
                   <td className="max-w-[200px] truncate px-3 py-1.5">{s.address}</td>
                   <td className="px-3 py-1.5 text-right">{fmtR(s.salePrice)}</td>
                   <td className="px-3 py-1.5 text-right">{s.erfExtent}</td>
                   <td className="px-3 py-1.5 text-right">{s.dwellingExtent}</td>
-                  <td className="px-3 py-1.5 text-right font-medium">{fmtR(s.pricePerM2Dwelling)}</td>
+                  <td className="px-3 py-1.5 text-right font-medium">
+                    {fmtR(s.pricePerM2Dwelling)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -272,9 +308,7 @@ export default function Report({ property, result }: ReportProps) {
             onClick={() => setShowAllSales(!showAllSales)}
             className="mt-2 text-sm font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400"
           >
-            {showAllSales
-              ? "Show less"
-              : `Show all ${enrichedSales.length} sales`}
+            {showAllSales ? "Show less" : `Show all ${enrichedSales.length} sales`}
           </button>
         )}
       </Section>
@@ -296,9 +330,7 @@ export default function Report({ property, result }: ReportProps) {
                 const pct = p.pctFromGV ?? 0;
                 const sign = pct >= 0 ? "+" : "";
                 const colorClass =
-                  pct < 0
-                    ? "text-red-600 dark:text-red-400"
-                    : "text-green-600 dark:text-green-400";
+                  pct < 0 ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400";
                 return (
                   <tr key={p.label} className="hover:bg-zinc-50 dark:hover:bg-zinc-900">
                     <td className="px-3 py-1.5">{p.label}</td>
@@ -307,7 +339,8 @@ export default function Report({ property, result }: ReportProps) {
                       {fmtR(p.theoreticalValueDwelling ?? 0)}
                     </td>
                     <td className={`px-3 py-1.5 text-right font-medium ${colorClass}`}>
-                      {sign}{pct.toFixed(1)}%
+                      {sign}
+                      {pct.toFixed(1)}%
                     </td>
                   </tr>
                 );
@@ -317,8 +350,9 @@ export default function Report({ property, result }: ReportProps) {
         </div>
         {r2 < 0.2 && (
           <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-            R² = {r2.toFixed(4)} — the regression explains very little price variance.
-            These projections should be treated as indicative only. The median-based valuation above is the more reliable estimate.
+            R² = {r2.toFixed(4)} — the regression explains very little price variance. These
+            projections should be treated as indicative only. The median-based valuation above is
+            the more reliable estimate.
           </p>
         )}
       </Section>
@@ -329,8 +363,8 @@ export default function Report({ property, result }: ReportProps) {
           {mv.verdict === "overvalued" ? (
             <div className="space-y-2 text-sm text-zinc-700 dark:text-zinc-300">
               <p>
-                Based on the analysis of <strong>{stats.count}</strong> comparable sales, the
-                GV2025 valuation of <strong>{fmtR(property.marketValue)}</strong> for{" "}
+                Based on the analysis of <strong>{stats.count}</strong> comparable sales, the GV2025
+                valuation of <strong>{fmtR(property.marketValue)}</strong> for{" "}
                 <strong>{property.address}</strong> is{" "}
                 <strong className={verdictColor.text}>
                   {Math.abs(mv.pctFromMedian).toFixed(1)}% above
@@ -340,8 +374,8 @@ export default function Report({ property, result }: ReportProps) {
               </p>
               <p>
                 The median market estimate is <strong>{fmtR(mv.medianValue)}</strong>{" "}
-                (time-weighted: <strong>{fmtR(mv.timeWeightedValue)}</strong>).
-                The fair value band is {fmtR(mv.q1Value)} to {fmtR(mv.q3Value)}.
+                (time-weighted: <strong>{fmtR(mv.timeWeightedValue)}</strong>). The fair value band
+                is {fmtR(mv.q1Value)} to {fmtR(mv.q3Value)}.
               </p>
               <p>
                 It is respectfully submitted that the GV2025 valuation be reviewed and adjusted to
@@ -352,16 +386,15 @@ export default function Report({ property, result }: ReportProps) {
           ) : mv.verdict === "undervalued" ? (
             <p className="text-sm text-zinc-700 dark:text-zinc-300">
               Based on the analysis, the GV2025 valuation of{" "}
-              <strong>{fmtR(property.marketValue)}</strong> appears to be below the
-              market-indicated value (median: {fmtR(mv.medianValue)}). No upward objection
-              is recommended.
+              <strong>{fmtR(property.marketValue)}</strong> appears to be below the market-indicated
+              value (median: {fmtR(mv.medianValue)}). No upward objection is recommended.
             </p>
           ) : (
             <p className="text-sm text-zinc-700 dark:text-zinc-300">
-              Based on the analysis of <strong>{stats.count}</strong> comparable sales, the
-              GV2025 valuation of <strong>{fmtR(property.marketValue)}</strong> falls within
-              the middle 50% (IQR) of comparable sales ({fmtR(mv.q1Value)} to{" "}
-              {fmtR(mv.q3Value)}) and appears to be fairly valued.
+              Based on the analysis of <strong>{stats.count}</strong> comparable sales, the GV2025
+              valuation of <strong>{fmtR(property.marketValue)}</strong> falls within the middle 50%
+              (IQR) of comparable sales ({fmtR(mv.q1Value)} to {fmtR(mv.q3Value)}) and appears to be
+              fairly valued.
             </p>
           )}
         </div>

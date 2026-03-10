@@ -1,4 +1,4 @@
-# Contributing to StadSeKant
+# Contributing to CityTsek
 
 Thanks for your interest in contributing! This project is open source and community contributions are welcome.
 
@@ -7,8 +7,8 @@ Thanks for your interest in contributing! This project is open source and commun
 1. **Fork** the repository on GitHub.
 2. **Clone** your fork locally:
    ```bash
-   git clone https://github.com/<your-username>/stadsekant.git
-   cd stadsekant
+   git clone https://github.com/<your-username>/citytsek.git
+   cd citytsek
    ```
 3. **Install dependencies:**
    ```bash
@@ -24,7 +24,7 @@ Thanks for your interest in contributing! This project is open source and commun
 
 ### Reporting Bugs
 
-- Open an [issue](https://github.com/pelicarno/stadsekant/issues) with a clear title and description.
+- Open an [issue](https://github.com/pelicarno/citytsek/issues) with a clear title and description.
 - Include steps to reproduce the bug, expected behaviour, and actual behaviour.
 - Add screenshots or console output if applicable.
 

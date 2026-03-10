@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     if (!reference || typeof reference !== "string" || reference.trim().length === 0) {
       return NextResponse.json(
         { error: "Property reference is required (e.g. CCT015775300000)." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
