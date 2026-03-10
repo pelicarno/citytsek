@@ -45,9 +45,6 @@ export default function Home() {
     const dw = params.get("dwelling");
     if (!ref || !dw) return;
 
-    setReference(ref);
-    setDwelling(dw);
-
     (async () => {
       setState({ phase: "lookup-loading" });
       try {
@@ -61,6 +58,9 @@ export default function Home() {
           setState({ phase: "error", message: lookupData.error || "Lookup failed." });
           return;
         }
+
+        setReference(ref);
+        setDwelling(dw);
 
         const dwellingExtent = parseFloat(dw);
         if (!dwellingExtent || dwellingExtent <= 0) {
