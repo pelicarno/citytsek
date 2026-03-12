@@ -13,6 +13,184 @@ function fmtR(n: number): string {
   return "R " + Math.round(n).toLocaleString("en-ZA");
 }
 
+function csvEscape(val: string | number): string {
+  const s = String(val);
+  if (s.includes(",") || s.includes('"') || s.includes("\n")) {
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  return s;
+}
+
+function csvRow(...cells: (string | number)[]): string {
+  return cells.map(csvEscape).join(",");
+}
+
+function generateAuditCSV(
+  property: Property & { dwellingExtent: number },
+  result: AnalysisResult,
+): string {
+  const {
+    enrichedSales,
+    stats,
+    fences,
+    filters,
+    medianValuation: mv,
+    r2,
+    predictions,
+    filterLog,
+  } = result;
+  const gvPerM2 = property.marketValue / property.dwellingExtent;
+  const lines: string[] = [];
+
+  // Section 1: Subject Property
+  lines.push(csvRow("SUBJECT PROPERTY"));
+  lines.push(csvRow("Field", "Value"));
+  lines.push(csvRow("Property Reference", property.parcelid));
+  lines.push(csvRow("Address", property.address));
+  lines.push(csvRow("Description", property.description));
+  lines.push(csvRow("Category", property.category));
+  lines.push(csvRow("Erf Extent (m²)", property.erfExtent));
+  lines.push(csvRow("Dwelling Extent (m²)", property.dwellingExtent));
+  lines.push(csvRow("GV2025 Valuation", property.marketValue));
+  lines.push(csvRow("GV2025 R/m² Dwelling", Math.round(gvPerM2)));
+  lines.push(csvRow("GV2025 R/m² Erf", Math.round(property.marketValue / property.erfExtent)));
+  lines.push("");
+
+  // Section 2: Filter Criteria
+  lines.push(csvRow("FILTER CRITERIA"));
+  lines.push(csvRow("Filter", "Value"));
+  lines.push(csvRow("Min Sale Price", filters.minPrice));
+  lines.push(csvRow("Erf Range (m²)", `${filters.erfRange[0]} – ${filters.erfRange[1]}`));
+  lines.push(
+    csvRow("Dwelling Range (m²)", `${filters.dwellingRange[0]} – ${filters.dwellingRange[1]}`),
+  );
+  lines.push(csvRow("Freehold Only", filters.freeholdOnly ? "Yes" : "No"));
+  lines.push(csvRow("IQR Multiplier", filters.iqr));
+  lines.push("");
+
+  // Section 3: Filtering Pipeline
+  lines.push(csvRow("FILTERING PIPELINE"));
+  for (const entry of filterLog) {
+    lines.push(csvRow(entry));
+  }
+  lines.push("");
+
+  // Section 4: Median Valuation Calculation (the auditable bit)
+  lines.push(csvRow("VALUATION CALCULATION"));
+  lines.push(csvRow("Metric", "R/m²", "× Dwelling m²", "= Total Value"));
+  lines.push(
+    csvRow(
+      "Median",
+      Math.round(mv.medianPricePerM2),
+      property.dwellingExtent,
+      Math.round(mv.medianValue),
+    ),
+  );
+  lines.push(
+    csvRow(
+      "Time-Weighted Median",
+      Math.round(mv.timeWeightedMedianPricePerM2),
+      property.dwellingExtent,
+      Math.round(mv.timeWeightedValue),
+    ),
+  );
+  lines.push(
+    csvRow(
+      "Q1 (25th percentile)",
+      Math.round(mv.q1PricePerM2),
+      property.dwellingExtent,
+      Math.round(mv.q1Value),
+    ),
+  );
+  lines.push(
+    csvRow(
+      "Q3 (75th percentile)",
+      Math.round(mv.q3PricePerM2),
+      property.dwellingExtent,
+      Math.round(mv.q3Value),
+    ),
+  );
+  lines.push(csvRow("GV2025", Math.round(gvPerM2), property.dwellingExtent, property.marketValue));
+  lines.push("");
+  lines.push(csvRow("Verdict", mv.verdict));
+  lines.push(csvRow("% From Median", `${mv.pctFromMedian.toFixed(1)}%`));
+  lines.push(csvRow("Difference", Math.round(property.marketValue - mv.medianValue)));
+  lines.push("");
+
+  // Section 5: Summary Statistics
+  lines.push(csvRow("SUMMARY STATISTICS"));
+  lines.push(csvRow("Statistic", "Value"));
+  lines.push(csvRow("Comparable Sales Count", stats.count));
+  lines.push(csvRow("Date Range", `${stats.dateRange[0]} – ${stats.dateRange[1]}`));
+  lines.push(csvRow("Average R/m² Dwelling", Math.round(stats.avgPrice)));
+  lines.push(csvRow("Median R/m² Dwelling", Math.round(stats.medianPrice)));
+  lines.push(csvRow("Min R/m² Dwelling", Math.round(stats.minPrice)));
+  lines.push(csvRow("Max R/m² Dwelling", Math.round(stats.maxPrice)));
+  lines.push(csvRow("IQR Q1 Fence", Math.round(fences.q1)));
+  lines.push(csvRow("IQR Q3 Fence", Math.round(fences.q3)));
+  lines.push(csvRow("IQR Lower Bound", Math.round(fences.lower)));
+  lines.push(csvRow("IQR Upper Bound", Math.round(fences.upper)));
+  lines.push("");
+
+  // Section 6: Regression Predictions
+  lines.push(csvRow("REGRESSION PREDICTIONS (SUPPLEMENTARY)"));
+  lines.push(csvRow("R²", r2.toFixed(4)));
+  lines.push(csvRow("Date", "Predicted R/m²", "Theoretical Value", "vs GV2025"));
+  for (const p of predictions) {
+    lines.push(
+      csvRow(
+        p.label,
+        Math.round(p.predictedPricePerM2),
+        Math.round(p.theoreticalValueDwelling),
+        `${p.pctFromGV >= 0 ? "+" : ""}${p.pctFromGV.toFixed(1)}%`,
+      ),
+    );
+  }
+  lines.push("");
+
+  // Section 7: Comparable Sales (full data for audit)
+  lines.push(csvRow("COMPARABLE SALES DATA"));
+  lines.push(
+    csvRow(
+      "#",
+      "Sale Date",
+      "Property Ref",
+      "Address",
+      "Description",
+      "Tenure",
+      "Erf m²",
+      "Dwelling m²",
+      "Sale Price",
+      "R/m² Dwelling (Sale Price ÷ Dwelling m²)",
+      "R/m² Erf (Sale Price ÷ Erf m²)",
+    ),
+  );
+  for (let i = 0; i < enrichedSales.length; i++) {
+    const s = enrichedSales[i];
+    lines.push(
+      csvRow(
+        i + 1,
+        s.saleDate,
+        s.ref,
+        s.address,
+        s.description,
+        s.tenure,
+        s.erfExtent,
+        s.dwellingExtent,
+        s.salePrice,
+        Math.round(s.pricePerM2Dwelling),
+        Math.round(s.pricePerM2Erf),
+      ),
+    );
+  }
+  lines.push("");
+
+  lines.push(csvRow("Report generated", new Date().toISOString().slice(0, 10)));
+  lines.push(csvRow("Data source", "City of Cape Town GV2025 Provision Roll"));
+
+  return lines.join("\n");
+}
+
 function Section({
   title,
   num,
@@ -103,6 +281,18 @@ export default function Report({ property, result }: ReportProps) {
     URL.revokeObjectURL(url);
   }
 
+  function downloadSpreadsheet() {
+    const csv = generateAuditCSV(property, result);
+    const bom = "\uFEFF";
+    const blob = new Blob([bom + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `valuation_audit_${property.parcelid}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div className="space-y-8">
       {/* Header + download */}
@@ -134,6 +324,25 @@ export default function Report({ property, result }: ReportProps) {
               />
             </svg>
             {copied ? "Link Copied!" : "Share"}
+          </button>
+          <button
+            onClick={downloadSpreadsheet}
+            className="flex items-center gap-2 rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+              />
+            </svg>
+            Download Spreadsheet
           </button>
           <button
             onClick={downloadReport}

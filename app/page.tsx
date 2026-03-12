@@ -241,8 +241,8 @@ export default function Home() {
                 </li>
                 <li>
                   <strong>Sectional titles are not supported.</strong> This tool only works for
-                  freehold properties — flats, apartments, and other sectional title units will
-                  not produce meaningful results.
+                  freehold properties — flats, apartments, and other sectional title units will not
+                  produce meaningful results.
                 </li>
               </ul>
             </div>
@@ -571,13 +571,24 @@ export default function Home() {
           >
             <input type="hidden" name="cmd" value="_paynow" />
             <input type="hidden" name="receiver" value="26316837" />
-            <input type="hidden" name="return_url" value="https://citytsek.co.za/payment/thank-you" />
+            <input
+              type="hidden"
+              name="return_url"
+              value="https://citytsek.co.za/payment/thank-you"
+            />
             <input type="hidden" name="cancel_url" value="https://citytsek.co.za" />
-            <input type="hidden" name="notify_url" value="https://citytsek.co.za/api/payfast/notify" />
+            <input
+              type="hidden"
+              name="notify_url"
+              value="https://citytsek.co.za/api/payfast/notify"
+            />
             <input type="hidden" name="item_name" value="Donate" />
 
             <div className="flex items-center gap-3">
-              <label htmlFor="PayFastAmount" className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
+              <label
+                htmlFor="PayFastAmount"
+                className="text-sm font-medium text-zinc-600 dark:text-zinc-300"
+              >
                 Amount (ZAR)
               </label>
               <input
@@ -597,8 +608,18 @@ export default function Home() {
               type="submit"
               className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:outline-none dark:focus:ring-offset-zinc-900"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
               </svg>
               Donate with PayFast
             </button>
