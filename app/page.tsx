@@ -236,13 +236,13 @@ export default function Home() {
                   that the City will accept its output or change your valuation.
                 </li>
                 <li>
-                  This is a <strong>vibe-coded</strong> project — results have not been
-                  independently verified and may not be 100% correct.
-                </li>
-                <li>
                   <strong>Sectional titles are not supported.</strong> This tool only works for
                   freehold properties — flats, apartments, and other sectional title units will not
                   produce meaningful results.
+                </li>
+                <li>
+                  This is a <strong>vibe-coded</strong> project — results have not been
+                  independently verified and may not be 100% correct.
                 </li>
               </ul>
             </div>
@@ -554,20 +554,13 @@ export default function Home() {
         )}
       </main>
 
-      {/* Donate */}
-      <section className="border-t border-zinc-200 py-10 dark:border-zinc-800">
-        <div className="mx-auto max-w-4xl px-4 text-center">
-          <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">
-            Support CityTsek
-          </h2>
-          <p className="mx-auto mt-2 max-w-md text-sm text-zinc-500 dark:text-zinc-400">
-            This tool is free for everyone. If you found it useful, consider a small donation to
-            help fund updates, improvements and more cool free tools.
-          </p>
+      {/* Donate — only on start and results pages */}
+      {(state.phase === "input" || state.phase === "results") && (
+        <section className="border-t border-zinc-200 py-4 dark:border-zinc-800">
           <form
             action="https://payment.payfast.io/eng/process"
             method="post"
-            className="mt-6 inline-flex flex-col items-center gap-4"
+            className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-3 px-4"
           >
             <input type="hidden" name="cmd" value="_paynow" />
             <input type="hidden" name="receiver" value="26316837" />
@@ -584,12 +577,13 @@ export default function Home() {
             />
             <input type="hidden" name="item_name" value="Donate" />
 
-            <div className="flex items-center gap-3">
-              <label
-                htmlFor="PayFastAmount"
-                className="text-sm font-medium text-zinc-600 dark:text-zinc-300"
-              >
-                Amount (ZAR)
+            <span className="text-sm text-zinc-500 dark:text-zinc-400">
+              Free for everyone — if you found it useful, consider a donation
+            </span>
+
+            <div className="flex items-center gap-2">
+              <label htmlFor="PayFastAmount" className="text-sm text-zinc-500 dark:text-zinc-400">
+                R
               </label>
               <input
                 required
@@ -600,16 +594,16 @@ export default function Home() {
                 min="5"
                 placeholder="20.00"
                 defaultValue="20"
-                className="w-28 rounded-md border border-zinc-300 bg-white px-3 py-2 text-center text-sm shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                className="w-20 rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-center text-sm shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
               />
             </div>
 
             <button
               type="submit"
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:outline-none dark:focus:ring-offset-zinc-900"
+              className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:outline-none dark:focus:ring-offset-zinc-900"
             >
               <svg
-                className="h-4 w-4"
+                className="h-3.5 w-3.5"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={2}
@@ -621,11 +615,11 @@ export default function Home() {
                   d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                 />
               </svg>
-              Donate with PayFast
+              Donate
             </button>
           </form>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-zinc-200 py-6 dark:border-zinc-800">
