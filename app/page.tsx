@@ -260,12 +260,12 @@ export default function Home() {
                   type="text"
                   value={reference}
                   onChange={(e) => setReference(e.target.value)}
-                  placeholder="e.g. CCT015775300000"
+                  placeholder="e.g. CCT012345600000"
                   className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-zinc-900 placeholder-zinc-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder-zinc-500"
                   autoFocus
                 />
                 <p className="mt-1.5 text-xs text-zinc-400 dark:text-zinc-500">
-                  Letters followed by digits, e.g. CCT015775300000 or SPM003790800000.
+                  Letters followed by digits, e.g. CCT012345600000 or SPM001234500000.
                 </p>
               </div>
 
@@ -560,6 +560,7 @@ export default function Home() {
           <form
             action="https://payment.payfast.io/eng/process"
             method="post"
+            target="_blank"
             className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-3 px-4"
           >
             <input type="hidden" name="cmd" value="_paynow" />
@@ -578,7 +579,7 @@ export default function Home() {
             <input type="hidden" name="item_name" value="Donate" />
 
             <span className="text-sm text-zinc-500 dark:text-zinc-400">
-              Free for everyone — if you found it useful, consider a donation
+              Free to use - donate to improve and keep it running
             </span>
 
             <div className="flex items-center gap-2">

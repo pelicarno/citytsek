@@ -112,7 +112,7 @@ export async function lookupProperty(
   if (/^\d+$/.test(trimmed)) {
     throw new Error(
       `ERF numbers are not accepted because they can match multiple properties across suburbs. ` +
-        `Please use your property reference (e.g. CCT015775300000) instead.\n\n` +
+        `Please use your property reference (e.g. CCT012345600000) instead.\n\n` +
         `To find your property reference, visit:\nhttps://web1.capetown.gov.za/web1/gv2025/SearchProperty\n` +
         `and search by ERF number or address.`,
     );
@@ -121,7 +121,7 @@ export async function lookupProperty(
   if (!/^[a-zA-Z]{2,}\d+$/i.test(trimmed)) {
     throw new Error(
       `"${reference.trim()}" does not look like a valid property reference. ` +
-        `Property references start with letters followed by digits (e.g. CCT015775300000).\n\n` +
+        `Property references start with letters followed by digits (e.g. CCT012345600000).\n\n` +
         `To find your property reference, visit:\nhttps://web1.capetown.gov.za/web1/gv2025/SearchProperty`,
     );
   }

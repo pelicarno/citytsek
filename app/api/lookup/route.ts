@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
         }),
       );
       return NextResponse.json(
-        { error: "Property reference is required (e.g. CCT015775300000)." },
+        { error: "Property reference is required (e.g. CCT012345600000)." },
         { status: 400 },
       );
     }

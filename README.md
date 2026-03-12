@@ -193,7 +193,7 @@ hidden from the legend via a filter function.
 
 ### Lookup Flow
 
-1. User enters a **property reference** (e.g. `CCT015775300000`)
+1. User enters a **property reference** (e.g. `CCT012345600000`)
 2. ERF numbers (digits only) are **rejected** — they can match multiple
    properties across suburbs, creating ambiguity
 3. The scraper queries `Results?Search=VAL,<ref>` for an exact match
