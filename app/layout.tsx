@@ -14,6 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://citytsek.xyz"),
   title: "CityTsek — GV2025 Property Valuation Analyser",
   description:
     "Free tool to analyse your City of Cape Town GV2025 property valuation against comparable sales data. Generate an objection motivation report.",
@@ -25,6 +26,25 @@ export const metadata: Metadata = {
     "municipal valuation",
     "comparable sales",
   ],
+  openGraph: {
+    title: "CityTsek — GV2025 Property Valuation Analyser",
+    description:
+      "Is your Cape Town property over-valued? Check your GV2025 valuation against real sales data and generate an objection report — free.",
+    url: "https://citytsek.xyz",
+    siteName: "CityTsek",
+    locale: "en_ZA",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CityTsek — GV2025 Property Valuation Analyser",
+    description:
+      "Is your Cape Town property over-valued? Check your GV2025 valuation against real sales data and generate an objection report — free.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
