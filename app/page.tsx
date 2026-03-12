@@ -186,9 +186,18 @@ export default function Home() {
 
     const filters: Partial<Filters> = {};
     if (minPrice) filters.minPrice = parseFloat(minPrice);
-    if (erfLo && erfHi) filters.erfRange = [parseFloat(erfLo), parseFloat(erfHi)];
-    if (dwellingLo && dwellingHi)
-      filters.dwellingRange = [parseFloat(dwellingLo), parseFloat(dwellingHi)];
+    if (erfLo || erfHi) {
+      filters.erfRange = [
+        erfLo ? parseFloat(erfLo) : Math.round(state.property.erfExtent * 0.33),
+        erfHi ? parseFloat(erfHi) : Math.round(state.property.erfExtent * 2.5),
+      ];
+    }
+    if (dwellingLo || dwellingHi) {
+      filters.dwellingRange = [
+        dwellingLo ? parseFloat(dwellingLo) : Math.round(dwellingExtent * 0.33),
+        dwellingHi ? parseFloat(dwellingHi) : Math.round(dwellingExtent * 2.5),
+      ];
+    }
     if (iqr) filters.iqr = parseFloat(iqr);
     filters.freeholdOnly = freeholdOnly;
 
@@ -598,16 +607,12 @@ export default function Home() {
           >
             <input type="hidden" name="cmd" value="_paynow" />
             <input type="hidden" name="receiver" value="26316837" />
-            <input
-              type="hidden"
-              name="return_url"
-              value="https://citytsek.co.za/payment/thank-you"
-            />
-            <input type="hidden" name="cancel_url" value="https://citytsek.co.za" />
+            <input type="hidden" name="return_url" value="https://citytsek.xyz/payment/thank-you" />
+            <input type="hidden" name="cancel_url" value="https://citytsek.xyz" />
             <input
               type="hidden"
               name="notify_url"
-              value="https://citytsek.co.za/api/payfast/notify"
+              value="https://citytsek.xyz/api/payfast/notify"
             />
             <input type="hidden" name="item_name" value="Donate" />
 
