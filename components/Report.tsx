@@ -265,6 +265,14 @@ export default function Report({ property, result }: ReportProps) {
     const url = new URL(window.location.href);
     url.searchParams.set("ref", property.parcelid);
     url.searchParams.set("dwelling", String(property.dwellingExtent));
+    const f = result.filters;
+    url.searchParams.set("minPrice", String(f.minPrice));
+    url.searchParams.set("erfLo", String(f.erfRange[0]));
+    url.searchParams.set("erfHi", String(f.erfRange[1]));
+    url.searchParams.set("dwellingLo", String(f.dwellingRange[0]));
+    url.searchParams.set("dwellingHi", String(f.dwellingRange[1]));
+    url.searchParams.set("iqr", String(f.iqr));
+    url.searchParams.set("freehold", f.freeholdOnly ? "1" : "0");
     navigator.clipboard.writeText(url.toString()).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);

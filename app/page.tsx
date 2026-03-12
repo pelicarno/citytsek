@@ -45,6 +45,19 @@ export default function Home() {
     const dw = params.get("dwelling");
     if (!ref || !dw) return;
 
+    const urlFilters: Partial<Filters> = {};
+    if (params.get("minPrice")) urlFilters.minPrice = parseFloat(params.get("minPrice")!);
+    if (params.get("erfLo") && params.get("erfHi"))
+      urlFilters.erfRange = [parseFloat(params.get("erfLo")!), parseFloat(params.get("erfHi")!)];
+    if (params.get("dwellingLo") && params.get("dwellingHi"))
+      urlFilters.dwellingRange = [
+        parseFloat(params.get("dwellingLo")!),
+        parseFloat(params.get("dwellingHi")!),
+      ];
+    if (params.get("iqr")) urlFilters.iqr = parseFloat(params.get("iqr")!);
+    if (params.get("freehold")) urlFilters.freeholdOnly = params.get("freehold") === "1";
+    const hasFilters = Object.keys(urlFilters).length > 0;
+
     (async () => {
       setState({ phase: "lookup-loading" });
       try {
@@ -61,6 +74,17 @@ export default function Home() {
 
         setReference(ref);
         setDwelling(dw);
+        if (urlFilters.minPrice) setMinPrice(String(urlFilters.minPrice));
+        if (urlFilters.erfRange) {
+          setErfLo(String(urlFilters.erfRange[0]));
+          setErfHi(String(urlFilters.erfRange[1]));
+        }
+        if (urlFilters.dwellingRange) {
+          setDwellingLo(String(urlFilters.dwellingRange[0]));
+          setDwellingHi(String(urlFilters.dwellingRange[1]));
+        }
+        if (urlFilters.iqr) setIqr(String(urlFilters.iqr));
+        if (urlFilters.freeholdOnly !== undefined) setFreeholdOnly(urlFilters.freeholdOnly);
 
         const dwellingExtent = parseFloat(dw);
         if (!dwellingExtent || dwellingExtent <= 0) {
@@ -83,6 +107,7 @@ export default function Home() {
             property,
             salesRows: lookupData.salesRows,
             dwellingExtent,
+            filters: hasFilters ? urlFilters : undefined,
           }),
         });
         const analyzeData = await analyzeRes.json();
@@ -103,6 +128,14 @@ export default function Home() {
       const url = new URL(window.location.href);
       url.searchParams.set("ref", state.property.parcelid);
       url.searchParams.set("dwelling", String(state.property.dwellingExtent));
+      const f = state.result.filters;
+      url.searchParams.set("minPrice", String(f.minPrice));
+      url.searchParams.set("erfLo", String(f.erfRange[0]));
+      url.searchParams.set("erfHi", String(f.erfRange[1]));
+      url.searchParams.set("dwellingLo", String(f.dwellingRange[0]));
+      url.searchParams.set("dwellingHi", String(f.dwellingRange[1]));
+      url.searchParams.set("iqr", String(f.iqr));
+      url.searchParams.set("freehold", f.freeholdOnly ? "1" : "0");
       window.history.replaceState({}, "", url.toString());
     }
   }, [state]);
